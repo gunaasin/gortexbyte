@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+        integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Arvo:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Work+Sans:ital,wght@0,100..900;1,100..900&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <div class="js-container"></div>
+
+    <script src="https://unpkg.com/supersimpledev@8.3.1/react.js"></script>
+    <script src="https://unpkg.com/supersimpledev@8.3.1/chatbot.js"></script>
+
+    <script src="https://unpkg.com/supersimpledev@8.3.1/react-dom.js"></script>
+    <script src="https://unpkg.com/supersimpledev@8.3.1/babel.js"></script>
+
+
+
+    <script type="text/babel">
+        const ChatInput = ({ chatMessages, setChatMessages }) => {
+            const [inputText, setInputText] = React.useState('');
+            const saveInputText = (event) => {
+                setInputText(event.target.value);
+            }
+
+            const sendMessage = () => {
+                const newMessages = [
+                    ...chatMessages,
+                    {
+                        message: inputText,
+                        sender: "user",
+                        id: crypto.randomUUID()
+                    }
+                ];
+                setChatMessages(newMessages);
+
+                const response = Chatbot.getResponse(inputText);
+                setChatMessages([
+                    ...newMessages,
+                    {
+                        message: response,
+                        sender: "bot",
+                        id: crypto.randomUUID()
+                    }
+                ]);
+                setInputText('');
+
+            }
+
+            return (
+                <div className="input-section">
+                    <textarea id="myTextarea"
+                        rows="4" cols="50"
+                        placeholder="Chat with G-Bot .."
+                        type="text"
+                        onChange={saveInputText}
+                        value={inputText}
+                        style={{
+                            resize: 'none',
+                            overflowY: 'hidden',
+                            height: `${Math.max(50, 20 + inputText.split('\n').length * 20)}px`,
+                        }}
+                    />
+                    <button onClick={sendMessage}><i class="fa-solid fa-arrow-up"></i></button>
+                </div>
+            );
+        }
+
+        const Chats = ({ message, sender, id }) => {
+
+            return (
+                < >
+                    {sender === "bot" && (
+                        <div className="bot-message">
+                            <div className="inside-mess">
+                                <img src=".\image\bot.png" alt="" />
+                                <p>{message}</p></div>
+                        </div>
+                    )}
+
+                    {sender === "user" && (
+                        <div className="user-message">
+                            <div className="inside-mess">
+                                <p>{message}</p>
+                                <img src=".\image\user.png" alt="" />
+                            </div>
+                        </div>
+                    )}
+                </>
+            );
+        }
+
+        const ChatMessages = ({ chatMessages }) => {
+            const chatMessagesRef = React.useRef(null);
+
+            React.useEffect(() => {
+                const currentRef = chatMessagesRef.current;
+                if (currentRef) {
+                        currentRef.scrollTop = currentRef.scrollHeight;
+                        console.log(currentRef.scrollTop)
+                }
+            }, [chatMessages]);
+
+
+            return (
+                <div className="message-box" ref={chatMessagesRef} >
+
+                    {chatMessages.map(({ message, sender, id }) => {
+                        return (
+                            <Chats
+                                message={message}
+                                sender={sender}
+                                key={id}
+                            />
+                        );
+                    })}
+                </div>
+            )
+        }
+        const Navbar = () => {
+            return (
+                <div className="navbar">
+                    <a href="https://gunaportfoliogn.vercel.app/">
+                        <img src="./image\g.png" alt="" />
+                        <h2>ortexByte</h2>
+                    </a>
+                </div>
+            );
+        }
+
+        const App = () => {
+            const [chatMessages, setChatMessages] = React.useState([]);
+
+
+            return (
+                <div className="app">
+                    <Navbar />
+
+
+                    <div class="message-container">
+                        <ChatMessages chatMessages={chatMessages} />
+                    </div>
+                    <ChatInput chatMessages={chatMessages} setChatMessages={setChatMessages} />
+                </div>
+            );
+        }
+
+        const container = document.querySelector(".js-container");
+        ReactDOM.createRoot(container).render(<App />);
+    </script>
+</body>
+
+</html>
